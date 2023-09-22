@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      version = "~> 4.16"
+      version = "~> 5.17"
     }
   }
   required_version = ">= 1.2.0"
@@ -77,15 +77,11 @@ resource "aws_internet_gateway" "halo-terraform-igw" {
   depends_on = [ aws_vpc.halo_terraform_vpc ]
 }
 
-# resource "aws_internet_gateway_attachment" "halo-terraform-igw-attachment" {
-#   internet_gateway_id = aws_internet_gateway.halo-terraform-igw.id
-#   vpc_id = aws_vpc.halo_terraform_vpc.id
-
-#   depends_on = [ aws_internet_gateway.halo-terraform-igw ]
-# }
-
+# create public route table with route going to internet gateway
 resource "aws_route_table" "PublicRouteTable" {
   vpc_id = aws_vpc.halo_terraform_vpc.id
+
+  depends_on = [aws_vpc.halo_terraform_vpc ,aws_internet_gateway.halo-terraform-igw ]
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -94,4 +90,16 @@ resource "aws_route_table" "PublicRouteTable" {
   tags = {
     Name = "PublicRouteTable"
   }
+}
+
+# map public subnets to public route table
+
+resource "aws_route_table_association" "public1Association" {
+  subnet_id = aws_subnet.halo_terraform_public_subnet_1.id
+  route_table_id = aws_route_table.PublicRouteTable.id
+}
+
+resource "aws_route_table_association" "public2Association" {
+  subnet_id = aws_subnet.halo_terraform_public_subnet_2.id
+  route_table_id = aws_route_table.PublicRouteTable.id
 }
