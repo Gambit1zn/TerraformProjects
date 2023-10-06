@@ -92,6 +92,57 @@ resource "aws_route_table" "PublicRouteTable" {
   }
 }
 
+# Create elastic public IP address and create and associate NAT gateway
+
+resource "aws_eip" "haloPublicNatIP" {
+  domain = "vpc"
+  depends_on = [ aws_internet_gateway.halo-terraform-igw ]
+}
+
+resource "aws_nat_gateway" "haloNatGateway" {
+  subnet_id = aws_subnet.halo_terraform_public_subnet_1.id
+  allocation_id = aws_eip.haloPublicNatIP.id
+  depends_on = [ 
+    aws_vpc.halo_terraform_vpc, 
+    aws_internet_gateway.halo-terraform-igw 
+  ]
+  tags = {
+    Name = "halo-terraform-nat-gateway"
+  }
+}
+
+# create private route tables with outbound going to nat gateway
+
+resource "aws_route_table" "privateRouteTable1" {
+  vpc_id = aws_vpc.halo_terraform_vpc.id
+
+  depends_on = [ aws_vpc.halo_terraform_vpc, aws_subnet.halo_terraform_private_subnet_1, aws_nat_gateway.haloNatGateway ]
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.haloNatGateway.id
+  }
+
+  tags = {
+    Name = "halo-terraform-rtb-private1-ca-central-1a"
+  }
+}
+
+resource "aws_route_table" "privateRouteTable2" {
+  vpc_id = aws_vpc.halo_terraform_vpc.id
+
+  depends_on = [ aws_vpc.halo_terraform_vpc, aws_subnet.halo_terraform_private_subnet_1, aws_nat_gateway.haloNatGateway ]
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.haloNatGateway.id
+  }
+
+  tags = {
+    Name = "halo-terraform-rtb-private1-ca-central-1b"
+  }
+}
+
 # map public subnets to public route table
 
 resource "aws_route_table_association" "public1Association" {
@@ -103,3 +154,18 @@ resource "aws_route_table_association" "public2Association" {
   subnet_id = aws_subnet.halo_terraform_public_subnet_2.id
   route_table_id = aws_route_table.PublicRouteTable.id
 }
+
+# map private subnets to private route tables
+
+resource "aws_route_table_association" "private1Association" {
+  subnet_id = aws_subnet.halo_terraform_private_subnet_1.id
+  route_table_id = aws_route_table.privateRouteTable1.id
+}
+
+resource "aws_route_table_association" "private2Association" {
+  subnet_id = aws_subnet.halo_terraform_private_subnet_2.id
+  route_table_id = aws_route_table.privateRouteTable2.id
+}
+
+
+
