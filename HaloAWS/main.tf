@@ -171,5 +171,34 @@ resource "aws_route_table_association" "private2Association" {
   route_table_id = aws_route_table.privateRouteTable2.id
 }
 
+# Create halo security group (this is temporary and will be changed to allow a more narrow range of ip's and ports)
+resource "aws_security_group" "halo_sg" {
+  name = "haloTerraformSG"
+  description = "Allow all port and all ips from inbound and outbound"
+  vpc_id = aws_vpc.halo_terraform_vpc.id
+
+  ingress {
+    description = "Allow all in VPC"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [var.specify_all]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  egress {
+    description = "Allow all from VPC"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [var.specify_all]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "haloTerraformSecurityGroup"
+  }
+}
+
 
 
