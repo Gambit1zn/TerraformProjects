@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 resource "aws_vpc" "halo_terraform_vpc" {
-  cidr_block = "10.0.0.0/24"
+  cidr_block = var.vpc_cidr
   tags = {
     Name = "halo-terraform"
   }
@@ -22,7 +22,7 @@ resource "aws_vpc" "halo_terraform_vpc" {
 resource "aws_subnet" "halo_terraform_public_subnet_1" {
   vpc_id = aws_vpc.halo_terraform_vpc.id
   cidr_block = "10.0.0.0/28"
-  availability_zone = "ca-central-1a"
+  availability_zone = var.aws_az1
 
   depends_on = [ aws_vpc.halo_terraform_vpc ]
 
@@ -34,7 +34,7 @@ resource "aws_subnet" "halo_terraform_public_subnet_1" {
 resource "aws_subnet" "halo_terraform_public_subnet_2" {
   vpc_id = aws_vpc.halo_terraform_vpc.id
   cidr_block = "10.0.0.16/28"
-  availability_zone = "ca-central-1b"
+  availability_zone = var.aws_az2
 
   depends_on = [ aws_vpc.halo_terraform_vpc ]
 
@@ -46,7 +46,7 @@ resource "aws_subnet" "halo_terraform_public_subnet_2" {
 resource "aws_subnet" "halo_terraform_private_subnet_1" {
   vpc_id = aws_vpc.halo_terraform_vpc.id
   cidr_block = "10.0.0.32/27"
-  availability_zone = "ca-central-1a"
+  availability_zone = var.aws_az1
 
   depends_on = [ aws_vpc.halo_terraform_vpc ]
 
@@ -58,7 +58,7 @@ resource "aws_subnet" "halo_terraform_private_subnet_1" {
 resource "aws_subnet" "halo_terraform_private_subnet_2" {
   vpc_id = aws_vpc.halo_terraform_vpc.id
   cidr_block = "10.0.0.64/27"
-  availability_zone = "ca-central-1b"
+  availability_zone = var.aws_az2
 
   depends_on = [ aws_vpc.halo_terraform_vpc ]
 
@@ -84,7 +84,7 @@ resource "aws_route_table" "PublicRouteTable" {
   depends_on = [aws_vpc.halo_terraform_vpc ,aws_internet_gateway.halo-terraform-igw ]
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.specify_all
     gateway_id = aws_internet_gateway.halo-terraform-igw.id
   }
   tags = {
@@ -119,7 +119,7 @@ resource "aws_route_table" "privateRouteTable1" {
   depends_on = [ aws_vpc.halo_terraform_vpc, aws_subnet.halo_terraform_private_subnet_1, aws_nat_gateway.haloNatGateway ]
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.specify_all
     gateway_id = aws_nat_gateway.haloNatGateway.id
   }
 
@@ -134,7 +134,7 @@ resource "aws_route_table" "privateRouteTable2" {
   depends_on = [ aws_vpc.halo_terraform_vpc, aws_subnet.halo_terraform_private_subnet_1, aws_nat_gateway.haloNatGateway ]
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.specify_all
     gateway_id = aws_nat_gateway.haloNatGateway.id
   }
 
