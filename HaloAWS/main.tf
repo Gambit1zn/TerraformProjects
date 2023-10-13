@@ -200,5 +200,47 @@ resource "aws_security_group" "halo_sg" {
   }
 }
 
+#Load balancer setup
+resource "aws_lb" "halo-elb" {
+  name = "halo-terraform-elb"
+  internal = false
+  load_balancer_type = "application"
+  security_groups = [aws_security_group.halo_sg.id]
+  subnets = [
+    aws_subnet.halo_terraform_private_subnet_1.id, 
+    aws_subnet.halo_terraform_private_subnet_2.id
+  ]
+
+  tags = {
+    Application = "Halo"
+  }
+}
+
+resource "aws_lb_target_group" "halo-targetGroup" {
+  name = "terraform-selenium-nodes"
+  port = 4444
+  protocol = "HTTP"
+  vpc_id = aws_vpc.halo_terraform_vpc.id
+
+  depends_on = [ aws_lb.halo-elb ]
+
+  tags = {
+    Application = "Halo"
+  }
+}
+
+resource "aws_lb_listener" "front_facing" {
+  load_balancer_arn = aws_lb.halo-elb.arn
+  port = "80"
+  protocol = "HTTP"
+
+  default_action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.halo-targetGroup.arn
+  }
+}
+
+
+
 
 
