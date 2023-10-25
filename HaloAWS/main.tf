@@ -257,23 +257,44 @@ resource "aws_iam_role_policy" "name" {
 }
 
 # Task definitions
+# resource "aws_ecs_task_definition" "halo-hub" {
+#   family = "selenium-terraform-hub"
+#   cpu = "1024"
+#   memory = "2048"
+#   network_mode = "awsvpc"
+#   requires_compatibilities = [
+#     "FARGATE"
+#   ]
+
+#   execution_role_arn = aws_iam_role.halo-ecs-role.arn
+
+#   runtime_platform {
+#     cpu_architecture = "X86_64"
+#     operating_system_family = "LINUX"
+#   }
+
+#   container_definitions = file("task-definitions/selenium-hub.json")
+# }
+
 resource "aws_ecs_task_definition" "halo-hub" {
-  family = "selenium-terraform-hub"
-  cpu = "1024"
-  memory = "2048"
-  network_mode = "awsvpc"
+  for_each = { for definition in var.ecs_task_definitions: definition.family => definition }
+
+  family = each.value.family
+  cpu = each.value.cpu
+  memory = each.value.memory
+  network_mode = each.value.network_mode
   requires_compatibilities = [
     "FARGATE"
   ]
-  
+
   execution_role_arn = aws_iam_role.halo-ecs-role.arn
 
   runtime_platform {
-    cpu_architecture = "X86_64"
-    operating_system_family = "LINUX"
+    cpu_architecture = each.value.cpu_architecture
+    operating_system_family = each.value.operating_system_family
   }
 
-  container_definitions = file("task-definitions/selenium-hub.json")
+  container_definitions = file(each.value.file_path)
 }
 
 
