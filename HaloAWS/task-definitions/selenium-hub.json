@@ -1,0 +1,46 @@
+[
+  {
+    "name": "selenium-hub",
+    "image": "public.ecr.aws/j7f3e3s3/selenium-hub:latest",
+    "cpu": 0,
+    "portMappings": [
+        {
+            "name": "selenium-hub-4443-tcp",
+            "containerPort": 4443,
+            "hostPort": 4443,
+            "protocol": "tcp",
+            "appProtocol": "http"
+        },
+        {
+            "name": "selenium-hub-4444-tcp",
+            "containerPort": 4444,
+            "hostPort": 4444,
+            "protocol": "tcp",
+            "appProtocol": "http"
+        },
+        {
+            "name": "selenium-hub-4442-tcp",
+            "containerPort": 4442,
+            "hostPort": 4442,
+            "protocol": "tcp",
+            "appProtocol": "http"
+        }
+    ],
+    "essential": true,
+    "environment": [],
+    "environmentFiles": [],
+    "mountPoints": [],
+    "volumesFrom": [],
+    "ulimits": [],
+    "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+            "awslogs-create-group": "true",
+            "awslogs-group": "/ecs/selenium-hub",
+            "awslogs-region": "ca-central-1",
+            "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+    }
+  }
+]

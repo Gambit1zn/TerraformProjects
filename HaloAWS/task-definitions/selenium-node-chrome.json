@@ -1,0 +1,60 @@
+{
+  "name": "selenium-node-chrome",
+  "image": "public.ecr.aws/j7f3e3s3/selenium-node-chrome:latest",
+  "cpu": 0,
+  "portMappings": [
+      {
+          "name": "selenium-node-chrome-5900-tcp",
+          "containerPort": 5900,
+          "hostPort": 5900,
+          "protocol": "tcp",
+          "appProtocol": "http"
+      }
+  ],
+  "essential": true,
+  "environment": [
+      {
+          "name": "SE_EVENT_BUS_PUBLISH_PORT",
+          "value": "4442"
+      },
+      {
+          "name": "SE_EVENT_BUS_HOST",
+          "value": "10.0.0.85"
+      },
+      {
+          "name": "NODE_MAX_INSTANCES",
+          "value": "1"
+      },
+      {
+          "name": "SE_SESSION_REQUEST_TIMEOUT",
+          "value": "920"
+      },
+      {
+          "name": "SE_EVENT_BUS_SUBSCRIBE_PORT",
+          "value": "4443"
+      },
+      {
+          "name": "SE_NODE_OVERRIDE_MAX_SESSIONS",
+          "value": "true"
+      },
+      {
+          "name": "SE_NODE_PORT",
+          "value": "5555"
+      },
+      {
+          "name": "SE_NODE_MAX_SESSIONS",
+          "value": "1"
+      }
+  ],
+  "mountPoints": [],
+  "volumesFrom": [],
+  "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+          "awslogs-create-group": "true",
+          "awslogs-group": "/ecs/selenium-node-chrome",
+          "awslogs-region": "ca-central-1",
+          "awslogs-stream-prefix": "ecs"
+      }
+  }
+}

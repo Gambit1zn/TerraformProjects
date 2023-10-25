@@ -17,3 +17,8 @@ output "nat_gateway_privateIp" {
   description = "Private IP of the created NAT Gateway"
   value = aws_nat_gateway.haloNatGateway.private_ip
 }
+
+output "halo_elb" {
+  description = "DNS of the load balancer"
+  value = aws_lb.halo-elb.dns_name
+}

@@ -240,6 +240,42 @@ resource "aws_lb_listener" "front_facing" {
   }
 }
 
+# IAM Policy and Role for Halo
+resource "aws_iam_role" "halo-ecs-role" {
+  name = "halo-terraform-role"
+
+  assume_role_policy = file("role-definitions/ecs-task-execution-role.json")
+}
+
+resource "aws_iam_role_policy" "name" {
+  name = "Custom-ECSTaskExecutionPolicy"
+  role = aws_iam_role.halo-ecs-role.id
+
+  policy = file("iam-policies/custom-ecs-task-execution-policy.json")
+
+  depends_on = [ aws_iam_role.halo-ecs-role ]
+}
+
+# Task definitions
+resource "aws_ecs_task_definition" "halo-hub" {
+  family = "selenium-terraform-hub"
+  cpu = "1024"
+  memory = "2048"
+  network_mode = "awsvpc"
+  requires_compatibilities = [
+    "FARGATE"
+  ]
+  
+  execution_role_arn = aws_iam_role.halo-ecs-role.arn
+
+  runtime_platform {
+    cpu_architecture = "X86_64"
+    operating_system_family = "LINUX"
+  }
+
+  container_definitions = file("task-definitions/selenium-hub.json")
+}
+
 
 
 
